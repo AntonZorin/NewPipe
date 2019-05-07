@@ -478,5 +478,6 @@
     <string name="list_view_mode">Вигляд списку</string>
     <string name="list">Список</string>
     <string name="grid">Сiтка</string>
+    <string name="login">Login</string>
 </resources>
 

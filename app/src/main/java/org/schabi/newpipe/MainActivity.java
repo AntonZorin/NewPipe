@@ -20,9 +20,11 @@
 
 package org.schabi.newpipe;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +50,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import net.openid.appauth.AuthorizationRequest;
+import net.openid.appauth.AuthorizationService;
+import net.openid.appauth.AuthorizationServiceConfiguration;
 
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
@@ -65,6 +72,13 @@ import org.schabi.newpipe.util.ServiceHelper;
 import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
 
+import static org.schabi.newpipe.util.Constants.ACTION_HANDLE_AUTH;
+import static org.schabi.newpipe.util.Constants.AUTH_ENDPOINT;
+import static org.schabi.newpipe.util.Constants.OAUTH_CLIENT_ID;
+import static org.schabi.newpipe.util.Constants.REDIRECT;
+import static org.schabi.newpipe.util.Constants.SCOPES;
+import static org.schabi.newpipe.util.Constants.TOKEN_ENDPOINT;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public static final boolean DEBUG = !BuildConfig.BUILD_TYPE.equals("release");
@@ -77,15 +91,17 @@ public class MainActivity extends AppCompatActivity {
     private boolean servicesShown = false;
     private ImageView serviceArrow;
 
-    private static final int ITEM_ID_SUBSCRIPTIONS = - 1;
-    private static final int ITEM_ID_FEED = - 2;
-    private static final int ITEM_ID_BOOKMARKS = - 3;
-    private static final int ITEM_ID_DOWNLOADS = - 4;
-    private static final int ITEM_ID_HISTORY = - 5;
+    private static final int ITEM_ID_SUBSCRIPTIONS = -1;
+    private static final int ITEM_ID_FEED = -2;
+    private static final int ITEM_ID_BOOKMARKS = -3;
+    private static final int ITEM_ID_DOWNLOADS = -4;
+    private static final int ITEM_ID_HISTORY = -5;
     private static final int ITEM_ID_SETTINGS = 0;
     private static final int ITEM_ID_ABOUT = 1;
+    private static final int ITEM_ID_LOGIN = 2;
 
     private static final int ORDER = 0;
+
 
     /*//////////////////////////////////////////////////////////////////////////
     // Activity's LifeCycle
@@ -93,7 +109,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+        if (DEBUG)
+            Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 
         ThemeHelper.setTheme(this, ServiceHelper.getSelectedServiceId(this));
 
@@ -132,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             drawerItems.getMenu()
                     .add(R.id.menu_tabs_group, kioskId, 0, KioskTranslator.getTranslatedKioskName(ks, this))
                     .setIcon(KioskTranslator.getKioskIcons(ks, this));
-            kioskId ++;
+            kioskId++;
         }
 
         drawerItems.getMenu()
@@ -159,6 +176,10 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
 
+        drawerItems.getMenu()
+                .add(R.id.menu_login_group, ITEM_ID_LOGIN, ORDER, R.string.login)
+                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.login));
+
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
         toggle.syncState();
         drawer.addDrawerListener(toggle);
@@ -172,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                if(servicesShown) {
+                if (servicesShown) {
                     toggleServices();
                 }
                 if (lastService != ServiceHelper.getSelectedServiceId(MainActivity.this)) {
@@ -200,6 +221,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_options_about_group:
                 optionsAboutSelected(item);
                 break;
+            case R.id.menu_login_group:
+                Toast.makeText(this, "Login", Toast.LENGTH_LONG).show();
+                //TODO:Implement login from google
+                auth();
+                break;
             default:
                 return false;
         }
@@ -208,14 +234,14 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private  void changeService(MenuItem item) {
+    private void changeService(MenuItem item) {
         drawerItems.getMenu().getItem(ServiceHelper.getSelectedServiceId(this)).setChecked(false);
         ServiceHelper.setSelectedServiceId(this, item.getItemId());
         drawerItems.getMenu().getItem(ServiceHelper.getSelectedServiceId(this)).setChecked(true);
     }
 
     private void tabSelected(MenuItem item) throws ExtractionException {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case ITEM_ID_SUBSCRIPTIONS:
                 NavigationHelper.openSubscriptionFragment(getSupportFragmentManager());
                 break;
@@ -238,10 +264,10 @@ public class MainActivity extends AppCompatActivity {
 
                 int kioskId = 0;
                 for (final String ks : service.getKioskList().getAvailableKiosks()) {
-                    if(kioskId == item.getItemId()) {
+                    if (kioskId == item.getItemId()) {
                         serviceName = ks;
                     }
-                    kioskId ++;
+                    kioskId++;
                 }
 
                 NavigationHelper.openKioskFragment(getSupportFragmentManager(), currentServiceId, serviceName);
@@ -250,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void optionsAboutSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case ITEM_ID_SETTINGS:
                 NavigationHelper.openSettings(this);
                 break;
@@ -262,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDrawerHeader() {
         NavigationView navigationView = findViewById(R.id.navigation);
-        View hView =  navigationView.getHeaderView(0);
+        View hView = navigationView.getHeaderView(0);
 
         serviceArrow = hView.findViewById(R.id.drawer_arrow);
         headerServiceView = hView.findViewById(R.id.drawer_header_service_view);
@@ -272,6 +298,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void auth() {
+        AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(Uri.parse(AUTH_ENDPOINT), Uri.parse(TOKEN_ENDPOINT));
+        AuthorizationRequest authRequest = new AuthorizationRequest.Builder(
+                config,
+                OAUTH_CLIENT_ID,
+                AuthorizationRequest.RESPONSE_TYPE_CODE,
+                Uri.parse(REDIRECT)
+        ).setScopes(SCOPES).build();
+        Intent intent = new Intent(ACTION_HANDLE_AUTH);
+        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
+        AuthorizationService authService = new AuthorizationService(this);
+        authService.performAuthorizationRequest(authRequest, pending);
+    }
+
     private void toggleServices() {
         servicesShown = !servicesShown;
 
@@ -279,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
         drawerItems.getMenu().removeGroup(R.id.menu_tabs_group);
         drawerItems.getMenu().removeGroup(R.id.menu_options_about_group);
 
-        if(servicesShown) {
+        if (servicesShown) {
             showServices();
         } else {
             try {
@@ -293,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     private void showServices() {
         serviceArrow.setImageResource(R.drawable.ic_arrow_up_white);
 
-        for(StreamingService s : NewPipe.getServices()) {
+        for (StreamingService s : NewPipe.getServices()) {
             final String title = s.getServiceInfo().getName() +
                     (ServiceHelper.isBeta(s) ? " (beta)" : "");
 
@@ -317,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
             drawerItems.getMenu()
                     .add(R.id.menu_tabs_group, kioskId, ORDER, KioskTranslator.getTranslatedKioskName(ks, this))
                     .setIcon(KioskTranslator.getKioskIcons(ks, this));
-            kioskId ++;
+            kioskId++;
         }
 
         drawerItems.getMenu()
@@ -391,7 +431,8 @@ public class MainActivity extends AppCompatActivity {
             // Return if launched from a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
             String action = intent.getAction();
-            if ((action != null && action.equals(Intent.ACTION_MAIN)) && intent.hasCategory(Intent.CATEGORY_LAUNCHER)) return;
+            if ((action != null && action.equals(Intent.ACTION_MAIN)) && intent.hasCategory(Intent.CATEGORY_LAUNCHER))
+                return;
         }
 
         super.onNewIntent(intent);
@@ -417,8 +458,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        for (int i: grantResults){
-            if (i == PackageManager.PERMISSION_DENIED){
+        for (int i : grantResults) {
+            if (i == PackageManager.PERMISSION_DENIED) {
                 return;
             }
         }
@@ -508,13 +549,13 @@ public class MainActivity extends AppCompatActivity {
                 onHomeButtonPressed();
                 return true;
             case R.id.action_show_downloads:
-                    return NavigationHelper.openDownloads(this);
+                return NavigationHelper.openDownloads(this);
             case R.id.action_history:
-                    NavigationHelper.openStatisticFragment(getSupportFragmentManager());
-                    return true;
+                NavigationHelper.openStatisticFragment(getSupportFragmentManager());
+                return true;
             case R.id.action_settings:
-                    NavigationHelper.openSettings(this);
-                    return true;
+                NavigationHelper.openSettings(this);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
