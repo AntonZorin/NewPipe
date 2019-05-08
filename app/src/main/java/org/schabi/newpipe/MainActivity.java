@@ -53,6 +53,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.openid.appauth.AuthorizationRequest;
+import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
 
@@ -69,15 +70,17 @@ import org.schabi.newpipe.util.KioskTranslator;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.PermissionHelper;
 import org.schabi.newpipe.util.ServiceHelper;
+import org.schabi.newpipe.util.SharedPrefsKeys;
 import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
 
-import static org.schabi.newpipe.util.Constants.ACTION_HANDLE_AUTH;
 import static org.schabi.newpipe.util.Constants.AUTH_ENDPOINT;
+import static org.schabi.newpipe.util.Constants.KEY_HANDLE_AUTH;
 import static org.schabi.newpipe.util.Constants.OAUTH_CLIENT_ID;
 import static org.schabi.newpipe.util.Constants.REDIRECT;
 import static org.schabi.newpipe.util.Constants.SCOPES;
 import static org.schabi.newpipe.util.Constants.TOKEN_ENDPOINT;
+import static org.schabi.newpipe.util.Constants.USED_INTENT_EXTRA_KEY;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -99,8 +102,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int ITEM_ID_SETTINGS = 0;
     private static final int ITEM_ID_ABOUT = 1;
     private static final int ITEM_ID_LOGIN = 2;
+    private static final int ITEM_ID_LOGOUT = 3;
 
     private static final int ORDER = 0;
+
+    AuthorizationService authService;
 
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        authService = new AuthorizationService(this);
         if (DEBUG)
             Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 
@@ -176,10 +183,15 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
 
-        drawerItems.getMenu()
-                .add(R.id.menu_login_group, ITEM_ID_LOGIN, ORDER, R.string.login)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.login));
-
+        if (PreferenceManager.getDefaultSharedPreferences(this).getString(SharedPrefsKeys.ACCESS_TOKEN_KEY, null) == null) {
+            drawerItems.getMenu()
+                    .add(R.id.menu_login_group, ITEM_ID_LOGIN, ORDER, R.string.login)
+                    .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.login));
+        } else {
+            drawerItems.getMenu()
+                    .add(R.id.menu_login_group, ITEM_ID_LOGOUT, ORDER, R.string.logout)
+                    .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.logout));
+        }
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
         toggle.syncState();
         drawer.addDrawerListener(toggle);
@@ -222,16 +234,31 @@ public class MainActivity extends AppCompatActivity {
                 optionsAboutSelected(item);
                 break;
             case R.id.menu_login_group:
-                Toast.makeText(this, "Login", Toast.LENGTH_LONG).show();
-                //TODO:Implement login from google
-                auth();
+                if (item.getItemId() == ITEM_ID_LOGIN) {
+                    if (DEBUG) {
+                        Toast.makeText(this, "Login", Toast.LENGTH_LONG).show();
+                    }
+                    auth();
+                } else {
+                    if (DEBUG) {
+                        Toast.makeText(this, "Logout", Toast.LENGTH_LONG).show();
+                    }
+                    logout();
+                }
                 break;
+
             default:
                 return false;
         }
 
         drawer.closeDrawers();
         return true;
+    }
+
+    private void logout() {
+        saveTokens(null, null, 0);
+        getIntent().putExtra(USED_INTENT_EXTRA_KEY, false);
+        switchLoginState(false);
     }
 
     private void changeService(MenuItem item) {
@@ -299,17 +326,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void auth() {
-        AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(Uri.parse(AUTH_ENDPOINT), Uri.parse(TOKEN_ENDPOINT));
+        AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(Uri.parse(AUTH_ENDPOINT),
+                Uri.parse(TOKEN_ENDPOINT));
         AuthorizationRequest authRequest = new AuthorizationRequest.Builder(
                 config,
                 OAUTH_CLIENT_ID,
                 AuthorizationRequest.RESPONSE_TYPE_CODE,
-                Uri.parse(REDIRECT)
-        ).setScopes(SCOPES).build();
-        Intent intent = new Intent(ACTION_HANDLE_AUTH);
+                Uri.parse(REDIRECT)).setScopes(SCOPES).build();
+        Intent intent = new Intent(KEY_HANDLE_AUTH);
         PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
-        AuthorizationService authService = new AuthorizationService(this);
+
         authService.performAuthorizationRequest(authRequest, pending);
+    }
+
+    private void switchLoginState(boolean isLogged) {
+        if (isLogged) {
+            if (DEBUG) Toast.makeText(this, "STATE LOGGED IN", Toast.LENGTH_LONG).show();
+            drawerItems.getMenu().removeItem(ITEM_ID_LOGIN);
+            drawerItems.getMenu()
+                    .add(R.id.menu_login_group, ITEM_ID_LOGOUT, ORDER, R.string.logout)
+                    .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.logout));
+        } else {
+            if (DEBUG) Toast.makeText(this, "STATE LOGGED OUT", Toast.LENGTH_LONG).show();
+            drawerItems.getMenu().removeItem(ITEM_ID_LOGOUT);
+            drawerItems.getMenu()
+                    .add(R.id.menu_login_group, ITEM_ID_LOGIN, ORDER, R.string.login)
+                    .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.login));
+        }
     }
 
     private void toggleServices() {
@@ -394,6 +437,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        if (DEBUG) Toast.makeText(this, "onStart", Toast.LENGTH_LONG).show();
+        checkAuthIntent(getIntent());
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -426,8 +476,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [" + intent + "]");
+        if (DEBUG) Toast.makeText(this, "onNewIntent", Toast.LENGTH_LONG).show();
         if (intent != null) {
+            checkAuthIntent(intent);
+            if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [" + intent + "]");
             // Return if launched from a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
             String action = intent.getAction();
@@ -600,8 +652,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         try {
-            if (DEBUG) Log.d(TAG, "handleIntent() called with: intent = [" + intent + "]");
-
+            if (DEBUG) {
+                Toast.makeText(this, "handleIntent", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "handleIntent() called with: intent = [" + intent + "]");
+            }
+            checkAuthIntent(intent);
             if (intent.hasExtra(Constants.KEY_LINK_TYPE)) {
                 String url = intent.getStringExtra(Constants.KEY_URL);
                 int serviceId = intent.getIntExtra(Constants.KEY_SERVICE_ID, 0);

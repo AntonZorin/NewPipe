@@ -479,5 +479,6 @@
     <string name="list">Список</string>
     <string name="grid">Сiтка</string>
     <string name="login">Login</string>
+    <string name="logout">Logout</string>
 </resources>
 

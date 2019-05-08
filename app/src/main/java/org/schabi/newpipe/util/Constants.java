@@ -16,13 +16,14 @@ public class Constants {
     //Google O`Auth constants
     public static final String AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
     public static final String TOKEN_ENDPOINT = "https://www.googleapis.com/oauth2/v4/token";
-    public static final String OAUTH_CLIENT_ID = "376377153534-3u26b8l9p5b7jhbldvuj7267vgr40iqq.apps.googleusercontent.com";
+    public static final String OAUTH_CLIENT_ID = "376377153534-m65i2ap2is78cp13vv1okdo1ml2bo1dc.apps.googleusercontent.com";
     public static final String REDIRECT = "org.schabi.newpipe:/oauth2callback";
     public static final String[] SCOPES = {
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/youtube.readonly"
     };
-    public static final String ACTION_HANDLE_AUTH = "HANDLE_AUTHORIZATION_RESPONSE";
+    public static final String KEY_HANDLE_AUTH = "HANDLE_AUTHORIZATION_RESPONSE";
+    public static final String USED_INTENT_EXTRA_KEY = "this intent is used";
 
     public static final String ACCESS_TOKEN = "access_token";
     public static final String REFRESH_TOKEN = "refresh_token";
