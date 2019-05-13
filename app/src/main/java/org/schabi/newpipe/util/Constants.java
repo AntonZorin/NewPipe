@@ -22,7 +22,6 @@ public class Constants {
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/youtube.readonly"
     };
-    public static final String KEY_HANDLE_AUTH = "HANDLE_AUTHORIZATION_RESPONSE";
     public static final String USED_INTENT_EXTRA_KEY = "this intent is used";
 
     public static final String ACCESS_TOKEN = "access_token";

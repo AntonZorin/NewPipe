@@ -56,6 +56,7 @@ import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
+import net.openid.appauth.ResponseTypeValues;
 
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
@@ -75,7 +76,6 @@ import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
 
 import static org.schabi.newpipe.util.Constants.AUTH_ENDPOINT;
-import static org.schabi.newpipe.util.Constants.KEY_HANDLE_AUTH;
 import static org.schabi.newpipe.util.Constants.OAUTH_CLIENT_ID;
 import static org.schabi.newpipe.util.Constants.REDIRECT;
 import static org.schabi.newpipe.util.Constants.SCOPES;
@@ -331,9 +331,9 @@ public class MainActivity extends AppCompatActivity {
         AuthorizationRequest authRequest = new AuthorizationRequest.Builder(
                 config,
                 OAUTH_CLIENT_ID,
-                AuthorizationRequest.RESPONSE_TYPE_CODE,
+                ResponseTypeValues.CODE,
                 Uri.parse(REDIRECT)).setScopes(SCOPES).build();
-        Intent intent = new Intent(KEY_HANDLE_AUTH);
+        Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
 
         authService.performAuthorizationRequest(authRequest, pending);
@@ -747,7 +747,6 @@ public class MainActivity extends AppCompatActivity {
     private void checkAuthIntent(Intent intent) {
         if (DEBUG) Toast.makeText(this, "checkAuthIntent", Toast.LENGTH_LONG).show();
         if (intent == null) return;
-        if (intent.getAction() != KEY_HANDLE_AUTH) return;
         if (!intent.hasExtra(USED_INTENT_EXTRA_KEY)) {
             handleAuthResponse(intent);
             intent.putExtra(USED_INTENT_EXTRA_KEY, true);
