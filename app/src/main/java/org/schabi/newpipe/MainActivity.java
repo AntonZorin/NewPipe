@@ -695,4 +695,62 @@ public class MainActivity extends AppCompatActivity {
             ErrorActivity.reportUiError(this, e);
         }
     }
+
+    private void handleAuthResponse(Intent intent) {
+        if (DEBUG) {
+            Log.d(TAG, "handleAuthResponse");
+            Toast.makeText(this, "handleAuthResponse", Toast.LENGTH_LONG).show();
+        }
+        AuthorizationResponse response = AuthorizationResponse.fromIntent(intent);
+        if (response == null) return;
+        authService = new AuthorizationService(this);
+        authService.performTokenRequest(response.createTokenExchangeRequest(), (tokenResponse, e) -> {
+            if (e != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "Something went wrong with auth: ");
+                    Toast.makeText(this, "Something went wrong with auth: ", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            if (tokenResponse != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "tokenResponse != null");
+                    Toast.makeText(this, "tokenResponse != null", Toast.LENGTH_LONG).show();
+                }
+                String accessToken = tokenResponse.accessToken;
+                String refreshToken = tokenResponse.refreshToken;
+//                long expTime = tokenResponse.accessTokenExpirationTime != null ? tokenResponse.accessTokenExpirationTime : 0;
+
+                saveTokens(accessToken, refreshToken, 0/*, expTime*/);
+                switchLoginState(true);
+
+                if (DEBUG) {
+                    Log.d(TAG, "accToken: " + accessToken + ", refToken:" + refreshToken + ", expTime:");
+                    Toast.makeText(this, "TOKEN: " + accessToken, Toast.LENGTH_LONG).show();
+                }
+            }
+
+        });
+    }
+
+    private void saveTokens(String accessToken, String refreshToken, long expTime) {
+        if (DEBUG) {
+            Log.d(TAG, "saveTokens");
+            Toast.makeText(this, "saveTokens", Toast.LENGTH_LONG).show();
+        }
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putString(SharedPrefsKeys.ACCESS_TOKEN_KEY, accessToken)
+                .putString(SharedPrefsKeys.REFRESH_TOKEN_KEY, refreshToken)
+                .putLong(SharedPrefsKeys.TOKEN_EXPIRE_TIME_KEY, expTime).apply();
+    }
+
+    private void checkAuthIntent(Intent intent) {
+        if (DEBUG) Toast.makeText(this, "checkAuthIntent", Toast.LENGTH_LONG).show();
+        if (intent == null) return;
+        if (intent.getAction() != KEY_HANDLE_AUTH) return;
+        if (!intent.hasExtra(USED_INTENT_EXTRA_KEY)) {
+            handleAuthResponse(intent);
+            intent.putExtra(USED_INTENT_EXTRA_KEY, true);
+        }
+    }
 }
