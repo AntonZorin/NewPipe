@@ -18,6 +18,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.wezom.ui.trends.TrendsFragment;
 
 import org.schabi.newpipe.MainActivity;
 import org.schabi.newpipe.R;
@@ -344,6 +345,13 @@ public class NavigationHelper {
     public static void openBookmarksFragment(FragmentManager fragmentManager) {
         defaultTransaction(fragmentManager)
                 .replace(R.id.fragment_holder, new BookmarkFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public static void openTrendsFragment(FragmentManager fragmentManager) {
+        defaultTransaction(fragmentManager)
+                .replace(R.id.fragment_holder, new TrendsFragment())
                 .addToBackStack(null)
                 .commit();
     }

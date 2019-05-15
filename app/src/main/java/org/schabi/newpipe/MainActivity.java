@@ -52,6 +52,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.wezom.utils.SharedPreferencesManager;
+
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
@@ -71,7 +73,6 @@ import org.schabi.newpipe.util.KioskTranslator;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.PermissionHelper;
 import org.schabi.newpipe.util.ServiceHelper;
-import org.schabi.newpipe.util.SharedPrefsKeys;
 import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
 
@@ -94,19 +95,22 @@ public class MainActivity extends AppCompatActivity {
     private boolean servicesShown = false;
     private ImageView serviceArrow;
 
-    private static final int ITEM_ID_SUBSCRIPTIONS = -1;
-    private static final int ITEM_ID_FEED = -2;
-    private static final int ITEM_ID_BOOKMARKS = -3;
-    private static final int ITEM_ID_DOWNLOADS = -4;
-    private static final int ITEM_ID_HISTORY = -5;
-    private static final int ITEM_ID_SETTINGS = 0;
-    private static final int ITEM_ID_ABOUT = 1;
-    private static final int ITEM_ID_LOGIN = 2;
-    private static final int ITEM_ID_LOGOUT = 3;
+    private static final int ITEM_ID_SUBSCRIPTIONS = 0;
+    private static final int ITEM_ID_FEED          = 1;
+    private static final int ITEM_ID_BOOKMARKS     = 2;
+    private static final int ITEM_ID_DOWNLOADS     = 3;
+    private static final int ITEM_ID_HISTORY       = 4;
+    private static final int ITEM_ID_SETTINGS      = 5;
+    private static final int ITEM_ID_ABOUT         = 6;
+    private static final int ITEM_ID_LOGIN         = 7;
+    private static final int ITEM_ID_LOGOUT        = 8;
+    private static final int ITEM_ID_TRENDS        = 9;
 
     private static final int ORDER = 0;
 
     AuthorizationService authService;
+
+    SharedPreferencesManager shared;
 
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -116,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         authService = new AuthorizationService(this);
+        shared = new SharedPreferencesManager(this);
         if (DEBUG)
             Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 
@@ -147,18 +152,21 @@ public class MainActivity extends AppCompatActivity {
         drawerItems = findViewById(R.id.navigation);
 
         //Tabs
-        int currentServiceId = ServiceHelper.getSelectedServiceId(this);
-        StreamingService service = NewPipe.getService(currentServiceId);
+//        int currentServiceId = ServiceHelper.getSelectedServiceId(this);
+//        StreamingService service = NewPipe.getService(currentServiceId);
+//
+//        int kioskId = 0;
+//
+//        for (final String ks : service.getKioskList().getAvailableKiosks()) {
+//            drawerItems.getMenu()
+//                    .add(R.id.menu_tabs_group, kioskId, 0, KioskTranslator.getTranslatedKioskName(ks, this))
+//                    .setIcon(KioskTranslator.getKioskIcons(ks, this));
+//            kioskId++;
+//        }
 
-        int kioskId = 0;
-
-        for (final String ks : service.getKioskList().getAvailableKiosks()) {
-            drawerItems.getMenu()
-                    .add(R.id.menu_tabs_group, kioskId, 0, KioskTranslator.getTranslatedKioskName(ks, this))
-                    .setIcon(KioskTranslator.getKioskIcons(ks, this));
-            kioskId++;
-        }
-
+        drawerItems.getMenu()
+                .add(R.id.menu_tabs_group, ITEM_ID_TRENDS, ORDER, R.string.trending)
+                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_hot));
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_SUBSCRIPTIONS, ORDER, R.string.tab_subscriptions)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_channel));
@@ -183,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
 
-        if (PreferenceManager.getDefaultSharedPreferences(this).getString(SharedPrefsKeys.ACCESS_TOKEN_KEY, null) == null) {
+        if (shared.getAccessToken() == null) {
             drawerItems.getMenu()
                     .add(R.id.menu_login_group, ITEM_ID_LOGIN, ORDER, R.string.login)
                     .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.login));
@@ -269,6 +277,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void tabSelected(MenuItem item) throws ExtractionException {
         switch (item.getItemId()) {
+            case ITEM_ID_TRENDS:
+                NavigationHelper.openTrendsFragment(getSupportFragmentManager());
+                break;
             case ITEM_ID_SUBSCRIPTIONS:
                 NavigationHelper.openSubscriptionFragment(getSupportFragmentManager());
                 break;
@@ -284,21 +295,21 @@ public class MainActivity extends AppCompatActivity {
             case ITEM_ID_HISTORY:
                 NavigationHelper.openStatisticFragment(getSupportFragmentManager());
                 break;
-            default:
-                int currentServiceId = ServiceHelper.getSelectedServiceId(this);
-                StreamingService service = NewPipe.getService(currentServiceId);
-                String serviceName = "";
-
-                int kioskId = 0;
-                for (final String ks : service.getKioskList().getAvailableKiosks()) {
-                    if (kioskId == item.getItemId()) {
-                        serviceName = ks;
-                    }
-                    kioskId++;
-                }
-
-                NavigationHelper.openKioskFragment(getSupportFragmentManager(), currentServiceId, serviceName);
-                break;
+//            default:
+//                int currentServiceId = ServiceHelper.getSelectedServiceId(this);
+//                StreamingService service = NewPipe.getService(currentServiceId);
+//                String serviceName = "";
+//
+//                int kioskId = 0;
+//                for (final String ks : service.getKioskList().getAvailableKiosks()) {
+//                    if (kioskId == item.getItemId()) {
+//                        serviceName = ks;
+//                    }
+//                    kioskId++;
+//                }
+//
+//                NavigationHelper.openKioskFragment(getSupportFragmentManager(), currentServiceId, serviceName);
+//                break;
         }
     }
 
@@ -453,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             String selectedServiceName = NewPipe.getService(
                     ServiceHelper.getSelectedServiceId(this)).getServiceInfo().getName();
-            headerServiceView.setText(selectedServiceName);
+            if (headerServiceView != null) headerServiceView.setText(selectedServiceName);
         } catch (Exception e) {
             ErrorActivity.reportUiError(this, e);
         }
@@ -738,10 +749,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "saveTokens");
             Toast.makeText(this, "saveTokens", Toast.LENGTH_LONG).show();
         }
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putString(SharedPrefsKeys.ACCESS_TOKEN_KEY, accessToken)
-                .putString(SharedPrefsKeys.REFRESH_TOKEN_KEY, refreshToken)
-                .putLong(SharedPrefsKeys.TOKEN_EXPIRE_TIME_KEY, expTime).apply();
+        shared.setAccessToken(accessToken);
+        shared.setRefreshToken(refreshToken);
+        shared.setTokenExpTime(expTime);
     }
 
     private void checkAuthIntent(Intent intent) {

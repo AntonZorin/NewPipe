@@ -23,9 +23,4 @@ public class Constants {
             "https://www.googleapis.com/auth/youtube.readonly"
     };
     public static final String USED_INTENT_EXTRA_KEY = "this intent is used";
-
-    public static final String ACCESS_TOKEN = "access_token";
-    public static final String REFRESH_TOKEN = "refresh_token";
-    public static final String TOKEN_EXP_TIME = "token_exp_time";
-
 }
