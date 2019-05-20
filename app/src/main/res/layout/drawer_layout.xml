@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.NavigationView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.NavigationView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_layout"
     android:layout_width="wrap_content"
@@ -13,10 +14,11 @@
         android:id="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/android:windowBackground"
+        android:background="?android:attr/android:windowBackground"
         app:elevation="0dp"
-        app:headerLayout="@layout/drawer_header" />
+        app:headerLayout="@layout/drawer_header"/>
     <!-- app:menu="@menu/drawer_items" -->
+
     <LinearLayout
         android:id="@+id/navigation_drawer_footer"
         android:layout_width="0dp"
@@ -26,5 +28,6 @@
         android:layout_alignEnd="@id/navigation"
         android:layout_alignRight="@id/navigation"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"></LinearLayout>
+        android:orientation="horizontal"/>
+
 </android.support.design.widget.NavigationView>
