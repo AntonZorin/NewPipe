@@ -85,7 +85,7 @@ import static org.schabi.newpipe.util.Constants.USED_INTENT_EXTRA_KEY;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    public static final boolean DEBUG = !BuildConfig.BUILD_TYPE.equals("release");
+    public static final boolean DEBUG = false;
 
     private ActionBarDrawerToggle toggle = null;
     private DrawerLayout drawer = null;
@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ITEM_ID_LOGIN         = 7;
     private static final int ITEM_ID_LOGOUT        = 8;
     private static final int ITEM_ID_TRENDS        = 9;
+    private static final int ITEM_ID_MY_FEED       = 10;
 
     private static final int ORDER = 0;
 
@@ -167,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_TRENDS, ORDER, R.string.trending)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_hot));
+        drawerItems.getMenu()
+                .add(R.id.menu_tabs_group, ITEM_ID_MY_FEED, ORDER, "My feed");
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_SUBSCRIPTIONS, ORDER, R.string.tab_subscriptions)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_channel));
@@ -279,6 +282,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case ITEM_ID_TRENDS:
                 NavigationHelper.openTrendsFragment(getSupportFragmentManager());
+                break;
+            case ITEM_ID_MY_FEED:
+                NavigationHelper.openMyFeedFragment(getSupportFragmentManager());
                 break;
             case ITEM_ID_SUBSCRIPTIONS:
                 NavigationHelper.openSubscriptionFragment(getSupportFragmentManager());

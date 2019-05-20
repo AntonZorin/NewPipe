@@ -1,6 +1,8 @@
 package com.wezom.net;
 
+import com.wezom.net.responses.PlaylistsResponse;
 import com.wezom.net.responses.RefreshedTokenResponse;
+import com.wezom.net.responses.SearchResponse;
 import com.wezom.net.responses.SubscriptionsResponse;
 import com.wezom.net.responses.TrendingVideosResponse;
 
@@ -26,7 +28,8 @@ public interface YoutubeApiService {
             @Header("Authorization") String token,
             @Query("part") String part,
             @Query("mine") boolean mine,
-            @Query("maxResults") int maxResults
+            @Query("maxResults") int maxResults,
+            @Query("pageToken") String pageToken
     );
 
     @GET("videos")
@@ -35,6 +38,26 @@ public interface YoutubeApiService {
             @Query("part") String part,
             @Query("chart") String chart,
             @Query("regionCode") String regionCode,
-            @Query("maxResults") int maxResults
+            @Query("maxResults") int maxResults,
+            @Query("pageToken") String pageToken
+    );
+
+    @GET("playlists")
+    Single<PlaylistsResponse> getPlaylists(
+            @Header("Authorization") String token,
+            @Query("part") String part,
+            @Query("channelId") String channelId,
+            @Query("maxResults") int maxResults,
+            @Query("pageToken") String pageToken
+    );
+
+    @GET("search")
+    Single<SearchResponse> doSearch(
+            @Header("Authorization") String token,
+            @Query("part") String part,
+            @Query("channelId") String channelId,
+            @Query("order") String order,
+            @Query("maxResults") int maxResults,
+            @Query("pageToken") String pageToken
     );
 }

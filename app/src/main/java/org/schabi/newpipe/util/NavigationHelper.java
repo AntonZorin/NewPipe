@@ -356,6 +356,13 @@ public class NavigationHelper {
                 .commit();
     }
 
+    public static void openMyFeedFragment(FragmentManager fragmentManager) {
+        defaultTransaction(fragmentManager)
+                .replace(R.id.fragment_holder, new com.wezom.ui.feed.FeedFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
     public static void openSubscriptionFragment(FragmentManager fragmentManager) {
         defaultTransaction(fragmentManager)
                 .replace(R.id.fragment_holder, new SubscriptionFragment())
