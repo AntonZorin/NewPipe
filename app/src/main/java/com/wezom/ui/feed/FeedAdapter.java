@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
-import com.wezom.net.models.Video;
+import com.wezom.net.models.FoundedVideo;
 
 import org.schabi.newpipe.databinding.ListStreamItemBinding;
 
@@ -22,7 +22,7 @@ import java.util.Locale;
 
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
-    private ArrayList<Video> videos = new ArrayList<>();
+    private ArrayList<FoundedVideo> videos = new ArrayList<>();
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -33,7 +33,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             this.binding = binding;
         }
 
-        void setup(Video video) {
+        void setup(FoundedVideo video) {
             Picasso.get().load(video.snippet.thumbnails.high.url).into(binding.itemThumbnailView);
             binding.itemUploaderView.setText(video.snippet.channelTitle);
             binding.itemVideoTitleView.setText(video.snippet.title);
@@ -61,7 +61,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     // example 2018-02-20T11:25:57.000Z
     private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.ROOT);
 
-    void add(List<Video> nextPart) {
+    void add(List<FoundedVideo> nextPart) {
         videos.addAll(nextPart);
     }
 

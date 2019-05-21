@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
-import com.wezom.net.models.Video;
+import com.wezom.net.models.TrendVideo;
 
 import org.schabi.newpipe.databinding.ListStreamItemBinding;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class TrendsAdapter extends RecyclerView.Adapter<TrendsAdapter.TrendHolder> {
 
-    private ArrayList<Video> videos = new ArrayList<>();
+    private ArrayList<TrendVideo> videos = new ArrayList<>();
 
     class TrendHolder extends RecyclerView.ViewHolder {
 
@@ -26,14 +26,14 @@ public class TrendsAdapter extends RecyclerView.Adapter<TrendsAdapter.TrendHolde
             this.binding = binding;
         }
 
-        void setup(Video video) {
+        void setup(TrendVideo video) {
             Picasso.get().load(video.snippet.thumbnails.high.url).into(binding.itemThumbnailView);
             binding.itemUploaderView.setText(video.snippet.channelTitle);
             binding.itemVideoTitleView.setText(video.snippet.title);
         }
     }
 
-    public void update(List<Video> newVideos) {
+    public void update(List<TrendVideo> newVideos) {
         videos.clear();
         videos.addAll(newVideos);
         notifyDataSetChanged();

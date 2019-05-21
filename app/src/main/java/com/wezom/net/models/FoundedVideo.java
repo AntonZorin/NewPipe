@@ -1,6 +1,6 @@
 package com.wezom.net.models;
 
-public class Video {
+public class FoundedVideo {
     public Id id;
     public Snippet snippet;
 }
