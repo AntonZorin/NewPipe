@@ -1,5 +1,6 @@
 package com.wezom.net;
 
+import com.wezom.net.responses.HomeResponse;
 import com.wezom.net.responses.PlaylistsResponse;
 import com.wezom.net.responses.RefreshedTokenResponse;
 import com.wezom.net.responses.SearchResponse;
@@ -24,7 +25,7 @@ public class YoutubeApiManager {
 
     public Single<RefreshedTokenResponse> refreshToken() {
         String refreshToken = shared.getRefreshToken();
-        return youtube.refreshToken(refreshToken, OAUTH_CLIENT_ID, "")
+        return youtube.refreshToken(refreshToken, OAUTH_CLIENT_ID, "refresh_token")
                 .compose(Rx.applyBackgroundScheduler());
     }
 
@@ -49,6 +50,12 @@ public class YoutubeApiManager {
     public Single<SearchResponse> searchVideos(String channelId, String nextPageToken) {
         String token = "Bearer " + shared.getAccessToken();
         return youtube.doSearch(token, "snippet,id", channelId, "date", 50, nextPageToken)
+                .compose(Rx.applyBackgroundScheduler());
+    }
+
+    public Single<HomeResponse> getHomeFeed(String nextPageToken) {
+        String token = "Bearer " + shared.getAccessToken();
+        return youtube.getHomeFeed(token, "snippet,contentDetails", true, "UA", 50, nextPageToken)
                 .compose(Rx.applyBackgroundScheduler());
     }
 }

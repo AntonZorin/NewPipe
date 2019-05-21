@@ -1,5 +1,6 @@
 package com.wezom.net;
 
+import com.wezom.net.responses.HomeResponse;
 import com.wezom.net.responses.PlaylistsResponse;
 import com.wezom.net.responses.RefreshedTokenResponse;
 import com.wezom.net.responses.SearchResponse;
@@ -57,6 +58,16 @@ public interface YoutubeApiService {
             @Query("part") String part,
             @Query("channelId") String channelId,
             @Query("order") String order,
+            @Query("maxResults") int maxResults,
+            @Query("pageToken") String pageToken
+    );
+
+    @GET("activities")
+    Single<HomeResponse> getHomeFeed(
+            @Header("Authorization") String token,
+            @Query("part") String part,
+            @Query("home") boolean home,
+            @Query("regionCode") String regionCode,
             @Query("maxResults") int maxResults,
             @Query("pageToken") String pageToken
     );

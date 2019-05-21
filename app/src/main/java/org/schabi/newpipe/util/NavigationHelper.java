@@ -18,6 +18,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.wezom.ui.home.HomeFragment;
 import com.wezom.ui.trends.TrendsFragment;
 
 import org.schabi.newpipe.MainActivity;
@@ -280,7 +281,11 @@ public class NavigationHelper {
         openVideoDetailFragment(fragmentManager, serviceId, url, title, false);
     }
 
-    public static void openVideoDetailFragment(FragmentManager fragmentManager, int serviceId, String url, String title, boolean autoPlay) {
+    public static void openVideoDetailFragment(FragmentManager fragmentManager,
+                                               int serviceId,
+                                               String url,
+                                               String title,
+                                               boolean autoPlay) {
         Fragment fragment = fragmentManager.findFragmentById(R.id.fragment_holder);
         if (title == null) title = "";
 
@@ -347,6 +352,16 @@ public class NavigationHelper {
                 .replace(R.id.fragment_holder, new BookmarkFragment())
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public static void openHomeFragment(FragmentManager fragmentManager) {
+        defaultTransaction(fragmentManager)
+                .replace(R.id.fragment_holder, new HomeFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public static void openRecommendationsFragment(FragmentManager fragmentManager) {
     }
 
     public static void openTrendsFragment(FragmentManager fragmentManager) {

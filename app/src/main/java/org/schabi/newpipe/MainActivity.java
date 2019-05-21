@@ -49,6 +49,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.gson.GsonBuilder;
+import com.wezom.net.YoutubeApiManager;
+import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import net.openid.appauth.AuthorizationRequest;
@@ -72,6 +75,12 @@ import org.schabi.newpipe.util.PermissionHelper;
 import org.schabi.newpipe.util.ServiceHelper;
 import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static org.schabi.newpipe.util.Constants.AUTH_ENDPOINT;
 import static org.schabi.newpipe.util.Constants.OAUTH_CLIENT_ID;
@@ -109,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int ORDER = 0;
 
-    AuthorizationService authService;
-
-    SharedPreferencesManager shared;
+    private AuthorizationService authService;
+    private SharedPreferencesManager shared;
+    private YoutubeApiManager api;
 
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -145,6 +154,21 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             ErrorActivity.reportUiError(this, e);
         }
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(message -> Log.d("network", message));
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
+                .addInterceptor(interceptor)
+                .build();
+        YoutubeApiService service = new Retrofit.Builder()
+                .baseUrl("https://www.googleapis.com/youtube/v3/")
+                .client(okHttpClient)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().create()))
+                .build()
+                .create(YoutubeApiService.class);
+        api = new YoutubeApiManager(service, shared);
     }
 
     private void setupDrawer() throws Exception {
@@ -197,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
         drawerItems.getMenu()
                 .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings));
+        drawerItems.getMenu()
+                .add(R.id.menu_options_about_group, 42, ORDER, "TEMP REFRESH TOKEN");
 //        drawerItems.getMenu()
 //                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
 //                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
@@ -287,6 +313,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void tabSelected(MenuItem item) throws ExtractionException {
         switch (item.getItemId()) {
+            case ITEM_ID_HOME:
+                NavigationHelper.openHomeFragment(getSupportFragmentManager());
+                break;
+            case ITEM_ID_RECOMMEND:
+                NavigationHelper.openRecommendationsFragment(getSupportFragmentManager());
+                break;
             case ITEM_ID_TRENDS:
                 NavigationHelper.openTrendsFragment(getSupportFragmentManager());
                 break;
@@ -330,6 +362,15 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case ITEM_ID_SETTINGS:
                 NavigationHelper.openSettings(this);
+                break;
+            case 42: // refresh token
+                api.refreshToken().subscribe(
+                        r -> {
+                            saveTokens(r.accessToken, shared.getRefreshToken(), r.expiresIn);
+                            Toast.makeText(this, "Token updated", Toast.LENGTH_SHORT).show();
+                        },
+                        e -> Toast.makeText(this, "Oops! Something wrong!", Toast.LENGTH_SHORT).show()
+                );
                 break;
 //            case ITEM_ID_ABOUT:
 //                NavigationHelper.openAbout(this);
@@ -743,9 +784,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String accessToken = tokenResponse.accessToken;
                 String refreshToken = tokenResponse.refreshToken;
-//                long expTime = tokenResponse.accessTokenExpirationTime != null ? tokenResponse.accessTokenExpirationTime : 0;
+                long expTime = tokenResponse.accessTokenExpirationTime != null ? tokenResponse.accessTokenExpirationTime : 0;
 
-                saveTokens(accessToken, refreshToken, 0/*, expTime*/);
+                saveTokens(accessToken, refreshToken, expTime);
                 switchLoginState(true);
 
                 if (DEBUG) {
