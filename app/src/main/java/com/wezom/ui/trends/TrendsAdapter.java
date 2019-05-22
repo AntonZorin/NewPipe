@@ -15,7 +15,9 @@ import java.util.List;
 
 public class TrendsAdapter extends RecyclerView.Adapter<TrendsAdapter.TrendHolder> {
 
-    private ArrayList<TrendVideo> videos = new ArrayList<>();
+    interface Callbacks {
+        void openVideo(String link, String title);
+    }
 
     class TrendHolder extends RecyclerView.ViewHolder {
 
@@ -30,14 +32,15 @@ public class TrendsAdapter extends RecyclerView.Adapter<TrendsAdapter.TrendHolde
             Picasso.get().load(video.snippet.thumbnails.high.url).into(binding.itemThumbnailView);
             binding.itemUploaderView.setText(video.snippet.channelTitle);
             binding.itemVideoTitleView.setText(video.snippet.title);
+            binding.getRoot().setOnClickListener(v -> {
+                if (callbacks == null) return;
+                callbacks.openVideo(video.getLink(), video.snippet.title);
+            });
         }
     }
 
-    public void update(List<TrendVideo> newVideos) {
-        videos.clear();
-        videos.addAll(newVideos);
-        notifyDataSetChanged();
-    }
+    private ArrayList<TrendVideo> videos = new ArrayList<>();
+    private Callbacks callbacks;
 
     @NonNull
     @Override
@@ -55,5 +58,15 @@ public class TrendsAdapter extends RecyclerView.Adapter<TrendsAdapter.TrendHolde
     @Override
     public int getItemCount() {
         return videos.size();
+    }
+
+    public void setCallbacks(Callbacks callbacks) {
+        this.callbacks = callbacks;
+    }
+
+    public void update(List<TrendVideo> newVideos) {
+        videos.clear();
+        videos.addAll(newVideos);
+        notifyDataSetChanged();
     }
 }

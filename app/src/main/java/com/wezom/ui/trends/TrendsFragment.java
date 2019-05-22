@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.gson.GsonBuilder;
 import com.wezom.net.YoutubeApiManager;
@@ -16,6 +17,7 @@ import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import org.schabi.newpipe.databinding.FragmentTrendsBinding;
+import org.schabi.newpipe.util.NavigationHelper;
 
 import io.reactivex.disposables.CompositeDisposable;
 import okhttp3.OkHttpClient;
@@ -36,6 +38,8 @@ public class TrendsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prepareTempDependencies();
+        adapter.setCallbacks((link, title) ->
+                NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
     }
 
     @Nullable
@@ -54,7 +58,7 @@ public class TrendsFragment extends Fragment {
 
         disposables.add(api.getTrends(null).subscribe(
                 r -> adapter.update(r.videos),
-                e -> Log.e(TrendsFragment.class.getName(), e.getMessage())
+                e -> Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
         ));
     }
 
