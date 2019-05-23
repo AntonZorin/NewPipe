@@ -3,7 +3,6 @@ package com.wezom.ui.feed;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import org.schabi.newpipe.databinding.FragmentFeedBinding;
+import org.schabi.newpipe.fragments.BaseStateFragment;
 import org.schabi.newpipe.util.NavigationHelper;
 
 import io.reactivex.Observable;
@@ -26,7 +26,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FeedFragment extends Fragment {
+public class FeedFragment extends BaseStateFragment {
 
     private FragmentFeedBinding binding;
     private FeedAdapter adapter = new FeedAdapter();
@@ -53,6 +53,7 @@ public class FeedFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        initViews(view, savedInstanceState);
         binding.itemsList.setAdapter(adapter);
         binding.itemsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         fetchSubs();
@@ -83,6 +84,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void fetchSubs() {
+        showLoading();
         disposables.add(api.getSubscriptions(null).subscribe(response -> {
             String[] ids = new String[response.subs.size()];
             for (int i = 0; i < response.subs.size(); i++) {
@@ -98,8 +100,14 @@ public class FeedFragment extends Fragment {
                     .flatMap(id -> api.searchVideos(id, null).toObservable())
                     .subscribe(
                             response -> adapter.addNewItems(response.videos),
-                            e -> Log.e("error", e.getMessage()),
-                            () -> adapter.refreshRecyclerView()
+                            e -> {
+                                showEmptyState();
+                                Log.e("error", e.getMessage());
+                            },
+                            () -> {
+                                adapter.refreshRecyclerView();
+                                hideLoading();
+                            }
                     )
         );
     }

@@ -3,7 +3,6 @@ package com.wezom.ui.home;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import org.schabi.newpipe.databinding.FragmentHomeBinding;
+import org.schabi.newpipe.fragments.BaseStateFragment;
 import org.schabi.newpipe.util.NavigationHelper;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -26,12 +26,13 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseStateFragment {
 
     private FragmentHomeBinding binding;
     private SharedPreferencesManager shared;
     private YoutubeApiManager api;
     private CompositeDisposable disposables = new CompositeDisposable();
+    HomeListAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,23 +52,32 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        HomeListAdapter adapter = new HomeListAdapter();
+        adapter = new HomeListAdapter();
         adapter.setCallbacks((title, link) ->
                 NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
         binding.homeList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.homeList.setAdapter(adapter);
-
-        disposables.add(api.getHomeFeed(null).subscribe(
-                r -> adapter.fullUpdate(r.items),
-                e -> Toast.makeText(requireContext(), "Oops! Something wrong!", Toast.LENGTH_LONG).show()
-        ));
+        fetchData();
     }
 
     @Override
     public void onDestroy() {
         disposables.clear();
         super.onDestroy();
+    }
+
+    private void fetchData() {
+        showLoading();
+        disposables.add(api.getHomeFeed(null).subscribe(
+                r -> {
+                    hideLoading();
+                    adapter.fullUpdate(r.items);
+                },
+                e -> {
+                    hideLoading();
+                    Toast.makeText(requireContext(), "Oops! Something wrong!", Toast.LENGTH_LONG).show();
+                }
+        ));
     }
 
     private void prepareTempDependencies() { // TODO: remove this shit, use di

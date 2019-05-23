@@ -1,7 +1,6 @@
 package org.schabi.newpipe.fragments;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -83,6 +82,7 @@ public abstract class BaseStateFragment<I> extends BaseFragment implements ViewC
     @Override
     protected void initListeners() {
         super.initListeners();
+        if (errorButtonRetry == null) return;
         RxView.clicks(errorButtonRetry)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())

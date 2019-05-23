@@ -45,6 +45,7 @@ public class AnimationUtils {
     }
 
     public static void animateView(View view, boolean enterOrExit, long duration) {
+        if (view == null) return;
         animateView(view, Type.ALPHA, enterOrExit, duration, 0, null);
     }
 

@@ -3,7 +3,6 @@ package com.wezom.ui.trends;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import org.schabi.newpipe.databinding.FragmentTrendsBinding;
+import org.schabi.newpipe.fragments.BaseStateFragment;
 import org.schabi.newpipe.util.NavigationHelper;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -26,7 +26,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class TrendsFragment extends Fragment {
+public class TrendsFragment extends BaseStateFragment {
 
     private FragmentTrendsBinding binding;
     private TrendsAdapter adapter = new TrendsAdapter();
@@ -53,19 +53,30 @@ public class TrendsFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        initViews(view, savedInstanceState);
         binding.trendsRecyclerView.setAdapter(adapter);
         binding.trendsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        disposables.add(api.getTrends(null).subscribe(
-                r -> adapter.fullUpdate(r.videos),
-                e -> Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
-        ));
+        fetchTrends();
     }
 
     @Override
     public void onDestroy() {
         disposables.clear();
         super.onDestroy();
+    }
+
+    private void fetchTrends() {
+        showLoading();
+        disposables.add(api.getTrends(null).subscribe(
+                r -> {
+                    adapter.fullUpdate(r.videos);
+                    hideLoading();
+                },
+                e -> {
+                    hideLoading();
+                    Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show();
+                }
+        ));
     }
 
     private void prepareTempDependencies() { // TODO: remove this shit, use di
