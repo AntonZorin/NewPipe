@@ -1,12 +1,29 @@
 package com.wezom.net.models;
 
-import static org.schabi.newpipe.util.Constants.YOUTUBE_VIDEO_LINK;
+import org.schabi.newpipe.util.Constants;
 
-public class HomeItem {
+public class HomeItem implements Video {
+
     public Snippet snippet;
     public ContentDetails contentDetails;
 
+    @Override
+    public String getVideoName() {
+        return snippet.title;
+    }
+
+    @Override
+    public String getChannelName() {
+        return snippet.channelTitle;
+    }
+
+    @Override
     public String getVideoLink() {
-        return YOUTUBE_VIDEO_LINK + contentDetails.upload.videoId;
+        return Constants.YOUTUBE_VIDEO_LINK + contentDetails.upload.videoId;
+    }
+
+    @Override
+    public String getLogoLink() {
+        return snippet.thumbnails.high.url;
     }
 }

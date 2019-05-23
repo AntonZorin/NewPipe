@@ -38,7 +38,7 @@ public class TrendsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prepareTempDependencies();
-        adapter.setCallbacks((link, title) ->
+        adapter.setCallbacks((title, link) ->
                 NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
     }
 
@@ -57,7 +57,7 @@ public class TrendsFragment extends Fragment {
         binding.trendsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         disposables.add(api.getTrends(null).subscribe(
-                r -> adapter.update(r.videos),
+                r -> adapter.fullUpdate(r.videos),
                 e -> Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
         ));
     }

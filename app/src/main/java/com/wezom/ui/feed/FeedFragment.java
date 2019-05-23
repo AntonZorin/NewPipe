@@ -16,6 +16,7 @@ import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import org.schabi.newpipe.databinding.FragmentFeedBinding;
+import org.schabi.newpipe.util.NavigationHelper;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -37,6 +38,8 @@ public class FeedFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prepareTempDependencies();
+        adapter.setCallbacks((title, link) ->
+                NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
     }
 
     @Nullable
@@ -94,9 +97,9 @@ public class FeedFragment extends Fragment {
             Observable.fromArray(channelIds)
                     .flatMap(id -> api.searchVideos(id, null).toObservable())
                     .subscribe(
-                            response -> adapter.add(response.videos),
+                            response -> adapter.addNewItems(response.videos),
                             e -> Log.e("error", e.getMessage()),
-                            () -> adapter.update()
+                            () -> adapter.refreshRecyclerView()
                     )
         );
     }

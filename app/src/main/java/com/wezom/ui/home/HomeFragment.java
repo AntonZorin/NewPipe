@@ -53,14 +53,13 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         HomeListAdapter adapter = new HomeListAdapter();
-        adapter.setCallbacks((link, title) -> {
-            NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title);
-        });
+        adapter.setCallbacks((title, link) ->
+                NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
         binding.homeList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.homeList.setAdapter(adapter);
 
         disposables.add(api.getHomeFeed(null).subscribe(
-                r -> adapter.update(r.items),
+                r -> adapter.fullUpdate(r.items),
                 e -> Toast.makeText(requireContext(), "Oops! Something wrong!", Toast.LENGTH_LONG).show()
         ));
     }
