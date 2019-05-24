@@ -221,8 +221,6 @@ public class MainActivity extends AppCompatActivity {
         drawerItems.getMenu()
                 .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings));
-        drawerItems.getMenu()
-                .add(R.id.menu_options_about_group, 42, ORDER, "TEMP REFRESH TOKEN");
 //        drawerItems.getMenu()
 //                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
 //                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
@@ -362,15 +360,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case ITEM_ID_SETTINGS:
                 NavigationHelper.openSettings(this);
-                break;
-            case 42: // refresh token
-                api.refreshToken().subscribe(
-                        r -> {
-                            saveTokens(r.accessToken, shared.getRefreshToken(), r.expiresIn);
-                            Toast.makeText(this, "Token updated", Toast.LENGTH_SHORT).show();
-                        },
-                        e -> Toast.makeText(this, "Oops! Something wrong!", Toast.LENGTH_SHORT).show()
-                );
                 break;
 //            case ITEM_ID_ABOUT:
 //                NavigationHelper.openAbout(this);

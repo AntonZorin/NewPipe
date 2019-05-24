@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.gson.GsonBuilder;
+import com.wezom.net.TokenInterceptor;
 import com.wezom.net.YoutubeApiManager;
 import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
@@ -81,11 +82,13 @@ public class TrendsFragment extends BaseStateFragment {
 
     private void prepareTempDependencies() { // TODO: remove this shit, use di
         shared = new SharedPreferencesManager(requireContext());
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(message -> Log.d("network", message));
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> Log.d("network", message));
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        TokenInterceptor tokenInterceptor = new TokenInterceptor(shared);
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .retryOnConnectionFailure(true)
-                .addInterceptor(interceptor)
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(tokenInterceptor)
                 .build();
         YoutubeApiService service = new Retrofit.Builder()
                 .baseUrl("https://www.googleapis.com/youtube/v3/")

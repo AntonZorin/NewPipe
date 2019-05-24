@@ -1,5 +1,8 @@
 package com.wezom.net;
 
+import android.util.Log;
+
+import com.wezom.net.responses.BaseResponse;
 import com.wezom.net.responses.HomeResponse;
 import com.wezom.net.responses.PlaylistsResponse;
 import com.wezom.net.responses.RefreshedTokenResponse;
@@ -8,6 +11,8 @@ import com.wezom.net.responses.SubscriptionsResponse;
 import com.wezom.net.responses.TrendingVideosResponse;
 import com.wezom.utils.Rx;
 import com.wezom.utils.SharedPreferencesManager;
+
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
 
@@ -23,39 +28,55 @@ public class YoutubeApiManager {
         shared = spm;
     }
 
+    /**
+     * Checks if it's time to update token. If so, returns single, that send refresh request, saves
+     * updated data and maps itself to target request, that we got in parameter.
+     */
+    private <T extends BaseResponse> Single<T> withFreshToken(Single<T> targetRequest) {
+        // check if token still valid
+        long diff = shared.getTokenExpTime() - System.currentTimeMillis();
+        if (diff > 0) {
+            long minLeft = TimeUnit.MILLISECONDS.toMinutes(diff);
+            Log.d("network", String.format("no need to update token (%d minutes left)", minLeft));
+            return targetRequest.compose(Rx.backgroundTransformer());
+        }
+        // update token and save new one
+        return youtube
+                .refreshToken(shared.getRefreshToken(), OAUTH_CLIENT_ID, "refresh_token")
+                .flatMap(fresh -> {
+                    Log.d("network", "access token has been updated");
+                    shared.setAccessToken(fresh.accessToken);
+                    shared.setTokenExpTime(fresh.getTokenLifetimeInMillis());
+                    return targetRequest;
+                })
+                .compose(Rx.backgroundTransformer());
+    }
+
     public Single<RefreshedTokenResponse> refreshToken() {
         String refreshToken = shared.getRefreshToken();
         return youtube.refreshToken(refreshToken, OAUTH_CLIENT_ID, "refresh_token")
-                .compose(Rx.applyBackgroundScheduler());
+                .compose(Rx.backgroundTransformer());
     }
 
     public Single<SubscriptionsResponse> getSubscriptions(String pageToken) {
-        String token = "Bearer " + shared.getAccessToken();
-        return youtube.getSubscriptions(token, "snippet", true, 50, pageToken)
-                .compose(Rx.applyBackgroundScheduler());
+        return withFreshToken(youtube.getSubscriptions("snippet", true, 50, pageToken));
     }
 
     public Single<TrendingVideosResponse> getTrends(String pageToken) {
-        String token = "Bearer " + shared.getAccessToken();
-        return youtube.getTrendingVideos(token, "snippet,contentDetails", "mostPopular", "UA", 50, pageToken)
-                .compose(Rx.applyBackgroundScheduler());
+        return withFreshToken(youtube
+                .getTrendingVideos("snippet,contentDetails", "mostPopular", "UA", 50, pageToken));
     }
 
     public Single<PlaylistsResponse> getPlaylists(String channelId, String pageToken) {
-        String token = "Bearer " + shared.getAccessToken();
-        return youtube.getPlaylists(token, "snippet", channelId, 50, pageToken)
-                .compose(Rx.applyBackgroundScheduler());
+        return withFreshToken(youtube.getPlaylists("snippet", channelId, 50, pageToken));
     }
 
     public Single<SearchResponse> searchVideos(String channelId, String nextPageToken) {
-        String token = "Bearer " + shared.getAccessToken();
-        return youtube.doSearch(token, "snippet,id", channelId, "date", 50, nextPageToken)
-                .compose(Rx.applyBackgroundScheduler());
+        return withFreshToken(youtube.doSearch("snippet,id", channelId, "date", 50, nextPageToken));
     }
 
     public Single<HomeResponse> getHomeFeed(String nextPageToken) {
-        String token = "Bearer " + shared.getAccessToken();
-        return youtube.getHomeFeed(token, "snippet,contentDetails", true, "UA", 50, nextPageToken)
-                .compose(Rx.applyBackgroundScheduler());
+        return withFreshToken(
+                youtube.getHomeFeed("snippet,contentDetails", true, "UA", 50, nextPageToken));
     }
 }

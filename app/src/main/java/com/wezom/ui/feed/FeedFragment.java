@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.GsonBuilder;
+import com.wezom.net.TokenInterceptor;
 import com.wezom.net.YoutubeApiManager;
 import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
@@ -72,6 +73,7 @@ public class FeedFragment extends BaseStateFragment {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .retryOnConnectionFailure(true)
                 .addInterceptor(interceptor)
+                .addInterceptor(new TokenInterceptor(shared))
                 .build();
         YoutubeApiService service = new Retrofit.Builder()
                 .baseUrl("https://www.googleapis.com/youtube/v3/")
