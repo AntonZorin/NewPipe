@@ -1,4 +1,4 @@
-package com.wezom.ui.feed;
+package com.wezom.parts.feed;
 
 import android.util.Log;
 

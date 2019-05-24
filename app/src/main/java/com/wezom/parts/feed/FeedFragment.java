@@ -1,4 +1,4 @@
-package com.wezom.ui.feed;
+package com.wezom.parts.feed;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

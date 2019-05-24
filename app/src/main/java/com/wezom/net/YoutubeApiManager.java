@@ -5,7 +5,6 @@ import android.util.Log;
 import com.wezom.net.responses.BaseResponse;
 import com.wezom.net.responses.HomeResponse;
 import com.wezom.net.responses.PlaylistsResponse;
-import com.wezom.net.responses.RefreshedTokenResponse;
 import com.wezom.net.responses.SearchResponse;
 import com.wezom.net.responses.SubscriptionsResponse;
 import com.wezom.net.responses.TrendingVideosResponse;
@@ -41,20 +40,14 @@ public class YoutubeApiManager {
             return targetRequest.compose(Rx.backgroundTransformer());
         }
         // update token and save new one
+        Log.d("network", "time to update token");
         return youtube
                 .refreshToken(shared.getRefreshToken(), OAUTH_CLIENT_ID, "refresh_token")
                 .flatMap(fresh -> {
-                    Log.d("network", "access token has been updated");
                     shared.setAccessToken(fresh.accessToken);
                     shared.setTokenExpTime(fresh.getTokenLifetimeInMillis());
                     return targetRequest;
                 })
-                .compose(Rx.backgroundTransformer());
-    }
-
-    public Single<RefreshedTokenResponse> refreshToken() {
-        String refreshToken = shared.getRefreshToken();
-        return youtube.refreshToken(refreshToken, OAUTH_CLIENT_ID, "refresh_token")
                 .compose(Rx.backgroundTransformer());
     }
 

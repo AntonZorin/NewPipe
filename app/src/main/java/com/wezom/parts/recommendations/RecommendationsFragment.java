@@ -1,4 +1,4 @@
-package com.wezom.ui.trends;
+package com.wezom.parts.recommendations;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,24 +13,22 @@ import com.wezom.common.fragments.KiviBaseFragment;
 import com.wezom.net.YoutubeApiManager;
 
 import org.schabi.newpipe.App;
-import org.schabi.newpipe.databinding.FragmentTrendsBinding;
+import org.schabi.newpipe.databinding.FragmentHomeBinding;
 import org.schabi.newpipe.util.NavigationHelper;
 
 import javax.inject.Inject;
 
-public class TrendsFragment extends KiviBaseFragment {
+public class RecommendationsFragment extends KiviBaseFragment {
 
     @Inject YoutubeApiManager api;
 
-    private FragmentTrendsBinding binding;
-    private TrendsAdapter adapter = new TrendsAdapter();
+    private FragmentHomeBinding binding;
+    private RecommendationsAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getApp().getRootComponent().inject(this);
-        adapter.setCallbacks((title, link) ->
-                NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
     }
 
     @Nullable
@@ -38,16 +36,19 @@ public class TrendsFragment extends KiviBaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentTrendsBinding.inflate(inflater, container, false);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        initViews(view, savedInstanceState);
-        binding.trendsRecyclerView.setAdapter(adapter);
-        binding.trendsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        fetchTrends();
+        super.onViewCreated(view, savedInstanceState);
+        adapter = new RecommendationsAdapter();
+        adapter.setCallbacks((title, link) ->
+                NavigationHelper.openVideoDetailFragment(getFragmentManager(), 0, link, title));
+        binding.homeList.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.homeList.setAdapter(adapter);
+        fetchData();
     }
 
     @Override
@@ -56,16 +57,16 @@ public class TrendsFragment extends KiviBaseFragment {
         super.onDestroy();
     }
 
-    private void fetchTrends() {
+    private void fetchData() {
         showLoading();
-        disposables.add(api.getTrends(null).subscribe(
+        disposables.add(api.getHomeFeed(null).subscribe(
                 r -> {
-                    adapter.fullUpdate(r.videos);
                     hideLoading();
+                    adapter.fullUpdate(r.items);
                 },
                 e -> {
                     hideLoading();
-                    Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Oops! Something wrong!", Toast.LENGTH_LONG).show();
                 }
         ));
     }

@@ -18,8 +18,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.wezom.ui.home.HomeFragment;
-import com.wezom.ui.trends.TrendsFragment;
+import com.wezom.parts.recommendations.RecommendationsFragment;
+import com.wezom.parts.trends.TrendsFragment;
 
 import org.schabi.newpipe.MainActivity;
 import org.schabi.newpipe.R;
@@ -354,14 +354,11 @@ public class NavigationHelper {
                 .commit();
     }
 
-    public static void openHomeFragment(FragmentManager fragmentManager) {
+    public static void openRecommendationsFragment(FragmentManager fragmentManager) {
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, new HomeFragment())
+                .replace(R.id.fragment_holder, new RecommendationsFragment())
                 .addToBackStack(null)
                 .commit();
-    }
-
-    public static void openRecommendationsFragment(FragmentManager fragmentManager) {
     }
 
     public static void openTrendsFragment(FragmentManager fragmentManager) {
@@ -373,7 +370,7 @@ public class NavigationHelper {
 
     public static void openMyFeedFragment(FragmentManager fragmentManager) {
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, new com.wezom.ui.feed.FeedFragment())
+                .replace(R.id.fragment_holder, new com.wezom.parts.feed.FeedFragment())
                 .addToBackStack(null)
                 .commit();
     }

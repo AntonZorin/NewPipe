@@ -1,4 +1,4 @@
-package com.wezom.ui.trends;
+package com.wezom.parts.trends;
 
 import com.wezom.common.adapters.VideosRecyclerViewAdapter;
 import com.wezom.net.models.TrendVideo;
