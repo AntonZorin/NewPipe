@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
-public class FeedAdapter extends VideosRecyclerViewAdapter<FoundedVideo> {
+class FeedAdapter extends VideosRecyclerViewAdapter<FoundedVideo> {
 
     // example 2018-02-20T11:25:57.000Z
     private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.ROOT);

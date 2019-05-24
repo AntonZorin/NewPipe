@@ -6,7 +6,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -15,6 +14,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
+import com.wezom.di.AppModule;
+import com.wezom.di.DaggerRootComponent;
+import com.wezom.di.RootComponent;
 
 import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
@@ -23,7 +25,6 @@ import org.acra.config.ConfigurationBuilder;
 import org.acra.sender.ReportSenderFactory;
 import org.schabi.newpipe.extractor.Downloader;
 import org.schabi.newpipe.extractor.NewPipe;
-import org.schabi.newpipe.extractor.utils.Localization;
 import org.schabi.newpipe.report.AcraReportSenderFactory;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.report.UserAction;
@@ -67,6 +68,7 @@ public class App extends Application {
     protected static final String TAG = App.class.toString();
     private RefWatcher refWatcher;
     private static App app;
+    private RootComponent rootComponent;
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends ReportSenderFactory>[]
@@ -107,6 +109,8 @@ public class App extends Application {
 
         // Check for new version
         new CheckForNewAppVersionTask().execute();
+
+        initDI();
     }
 
     protected Downloader getDownloader() {
@@ -261,5 +265,16 @@ public class App extends Application {
 
     public static App getApp() {
         return app;
+    }
+
+    private void initDI() {
+        if (rootComponent != null) return;
+        rootComponent = DaggerRootComponent.builder()
+                .appModule(new AppModule(this))
+                .build();
+    }
+
+    public RootComponent getRootComponent() {
+        return rootComponent;
     }
 }

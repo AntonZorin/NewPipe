@@ -49,9 +49,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.google.gson.GsonBuilder;
-import com.wezom.net.YoutubeApiManager;
-import com.wezom.net.YoutubeApiService;
 import com.wezom.utils.SharedPreferencesManager;
 
 import net.openid.appauth.AuthorizationRequest;
@@ -75,12 +72,6 @@ import org.schabi.newpipe.util.PermissionHelper;
 import org.schabi.newpipe.util.ServiceHelper;
 import org.schabi.newpipe.util.StateSaver;
 import org.schabi.newpipe.util.ThemeHelper;
-
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static org.schabi.newpipe.util.Constants.AUTH_ENDPOINT;
 import static org.schabi.newpipe.util.Constants.OAUTH_CLIENT_ID;
@@ -120,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AuthorizationService authService;
     private SharedPreferencesManager shared;
-    private YoutubeApiManager api;
 
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -154,21 +144,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             ErrorActivity.reportUiError(this, e);
         }
-
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(message -> Log.d("network", message));
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .retryOnConnectionFailure(true)
-                .addInterceptor(interceptor)
-                .build();
-        YoutubeApiService service = new Retrofit.Builder()
-                .baseUrl("https://www.googleapis.com/youtube/v3/")
-                .client(okHttpClient)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().create()))
-                .build()
-                .create(YoutubeApiService.class);
-        api = new YoutubeApiManager(service, shared);
     }
 
     private void setupDrawer() throws Exception {
