@@ -9,5 +9,12 @@ import io.reactivex.disposables.CompositeDisposable;
  * I'm too lazy to implement it by myself.
  */
 public abstract class KiviBaseFragment extends BaseStateFragment {
+
     protected CompositeDisposable disposables = new CompositeDisposable();
+
+    @Override
+    public void onDestroy() {
+        disposables.clear();
+        super.onDestroy();
+    }
 }

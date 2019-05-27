@@ -38,14 +38,14 @@ public abstract class BaseRecyclerViewAdapter<ITEM, VH extends BaseViewHolder>
     public void fullUpdate(List<ITEM> newItems) {
         items.clear();
         addNewItems(newItems);
-        refreshRecyclerView();
+        refresh();
     }
 
     public void addNewItems(List<ITEM> newItems) {
         items.addAll(newItems);
     }
 
-    public void refreshRecyclerView() {
+    public void refresh() {
         notifyDataSetChanged();
     }
 }

@@ -50,12 +50,6 @@ public class TrendsFragment extends KiviBaseFragment {
         fetchTrends();
     }
 
-    @Override
-    public void onDestroy() {
-        disposables.clear();
-        super.onDestroy();
-    }
-
     private void fetchTrends() {
         showLoading();
         disposables.add(api.getTrends(null).subscribe(

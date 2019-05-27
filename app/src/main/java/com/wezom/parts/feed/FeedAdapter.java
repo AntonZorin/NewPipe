@@ -18,9 +18,9 @@ class FeedAdapter extends VideosRecyclerViewAdapter<FoundedVideo> {
     private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.ROOT);
 
     @Override
-    public void refreshRecyclerView() {
+    public void refresh() {
         sortItems();
-        super.refreshRecyclerView();
+        super.refresh();
     }
 
     private void sortItems() {

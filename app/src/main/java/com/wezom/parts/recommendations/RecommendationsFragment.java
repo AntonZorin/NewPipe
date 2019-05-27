@@ -51,12 +51,6 @@ public class RecommendationsFragment extends KiviBaseFragment {
         fetchData();
     }
 
-    @Override
-    public void onDestroy() {
-        disposables.clear();
-        super.onDestroy();
-    }
-
     private void fetchData() {
         showLoading();
         disposables.add(api.getHomeFeed(null).subscribe(

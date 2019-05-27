@@ -52,12 +52,6 @@ public class FeedFragment extends KiviBaseFragment {
         fetchSubs();
     }
 
-    @Override
-    public void onDestroy() {
-        disposables.clear();
-        super.onDestroy();
-    }
-
     private void fetchSubs() {
         showLoading();
         disposables.add(api.getSubscriptions(null).subscribe(response -> {
@@ -80,7 +74,7 @@ public class FeedFragment extends KiviBaseFragment {
                                 Log.e("error", e.getMessage());
                             },
                             () -> {
-                                adapter.refreshRecyclerView();
+                                adapter.refresh();
                                 hideLoading();
                             }
                     )
