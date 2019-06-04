@@ -1,5 +1,6 @@
 package com.wezom.net;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.wezom.net.responses.BaseResponse;
@@ -64,7 +65,7 @@ public class YoutubeApiManager {
         return withFreshToken(youtube.getPlaylists("snippet", channelId, 50, pageToken));
     }
 
-    public Single<SearchResponse> searchVideos(String channelId, String nextPageToken) {
+    public Single<SearchResponse> searchVideos(@NonNull String channelId, String nextPageToken) {
         return withFreshToken(youtube.doSearch("snippet,id", channelId, "date", 50, nextPageToken));
     }
 

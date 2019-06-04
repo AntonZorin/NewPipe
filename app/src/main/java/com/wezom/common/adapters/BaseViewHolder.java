@@ -8,7 +8,7 @@ public class BaseViewHolder<BINDING extends ViewDataBinding> extends RecyclerVie
 
     public BINDING binding;
 
-    BaseViewHolder(@NonNull BINDING binding) {
+    public BaseViewHolder(@NonNull BINDING binding) {
         super(binding.getRoot());
         this.binding = binding;
     }

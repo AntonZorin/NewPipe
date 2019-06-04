@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 NavigationHelper.openTrendsFragment(getSupportFragmentManager());
                 break;
             case ITEM_ID_MY_FEED:
-                NavigationHelper.openMyFeedFragment(getSupportFragmentManager());
+                NavigationHelper.openSubscriptionsFragment(getSupportFragmentManager());
                 break;
             case ITEM_ID_BOOKMARKS:
                 NavigationHelper.openBookmarksFragment(getSupportFragmentManager());
