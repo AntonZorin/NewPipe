@@ -337,7 +337,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:padding="6dp">
+                        android:padding="6dp"
+                        android:visibility="gone">
 
                         <!-- CONTROLS -->
                         <TextView
@@ -352,8 +353,8 @@
                             android:drawableTop="?attr/ic_playlist_add"
                             android:focusable="true"
                             android:gravity="center"
-                            android:paddingBottom="6dp"
                             android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
                             android:text="@string/controls_add_to_playlist_title"
                             android:textSize="12sp" />
 
@@ -369,8 +370,8 @@
                             android:drawableTop="?attr/audio"
                             android:focusable="true"
                             android:gravity="center"
-                            android:paddingBottom="6dp"
                             android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
                             android:text="@string/controls_background_title"
                             android:textSize="12sp" />
 
@@ -386,8 +387,8 @@
                             android:drawableTop="?attr/popup"
                             android:focusable="true"
                             android:gravity="center"
-                            android:paddingBottom="6dp"
                             android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
                             android:text="@string/controls_popup_title"
                             android:textSize="12sp" />
 
@@ -403,8 +404,8 @@
                             android:drawableTop="?attr/download"
                             android:focusable="true"
                             android:gravity="center"
-                            android:paddingBottom="6dp"
                             android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
                             android:text="@string/download"
                             android:textSize="12sp" />
 

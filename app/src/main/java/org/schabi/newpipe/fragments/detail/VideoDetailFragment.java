@@ -213,7 +213,7 @@ public class VideoDetailFragment
                 .getBoolean(getString(R.string.show_next_video_key), true);
 
         showComments = PreferenceManager.getDefaultSharedPreferences(activity)
-                .getBoolean(getString(R.string.show_comments_key), true);
+                .getBoolean(getString(R.string.show_comments_key), false);
 
         selectedTabTag = PreferenceManager.getDefaultSharedPreferences(activity)
                 .getString(getString(R.string.stream_info_selected_tab_key), COMMENTS_TAB_TAG);
