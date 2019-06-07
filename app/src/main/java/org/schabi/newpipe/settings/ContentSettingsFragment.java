@@ -21,7 +21,6 @@ import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.utils.Localization;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.report.UserAction;
-import org.schabi.newpipe.util.FilePickerActivityHelper;
 import org.schabi.newpipe.util.ZipHelper;
 
 import java.io.BufferedOutputStream;
@@ -89,25 +88,25 @@ public class ContentSettingsFragment extends BasePreferenceFragment {
 
         addPreferencesFromResource(R.xml.content_settings);
 
-        Preference importDataPreference = findPreference(getString(R.string.import_data));
-        importDataPreference.setOnPreferenceClickListener((Preference p) -> {
-            Intent i = new Intent(getActivity(), FilePickerActivityHelper.class)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_FILE);
-            startActivityForResult(i, REQUEST_IMPORT_PATH);
-            return true;
-        });
+//        Preference importDataPreference = findPreference(getString(R.string.import_data));
+//        importDataPreference.setOnPreferenceClickListener((Preference p) -> {
+//            Intent i = new Intent(getActivity(), FilePickerActivityHelper.class)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, false)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_FILE);
+//            startActivityForResult(i, REQUEST_IMPORT_PATH);
+//            return true;
+//        });
 
-        Preference exportDataPreference = findPreference(getString(R.string.export_data));
-        exportDataPreference.setOnPreferenceClickListener((Preference p) -> {
-            Intent i = new Intent(getActivity(), FilePickerActivityHelper.class)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, true)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_DIR);
-            startActivityForResult(i, REQUEST_EXPORT_PATH);
-            return true;
-        });
+//        Preference exportDataPreference = findPreference(getString(R.string.export_data));
+//        exportDataPreference.setOnPreferenceClickListener((Preference p) -> {
+//            Intent i = new Intent(getActivity(), FilePickerActivityHelper.class)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, true)
+//                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_DIR);
+//            startActivityForResult(i, REQUEST_EXPORT_PATH);
+//            return true;
+//        });
 
         Preference setPreferredLanguage = findPreference(getString(R.string.content_language_key));
         setPreferredLanguage.setOnPreferenceChangeListener((Preference p, Object newLanguage) -> {

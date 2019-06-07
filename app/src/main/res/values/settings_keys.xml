@@ -45,10 +45,10 @@
     </string-array>
 
     <string name="default_resolution_key" translatable="false">default_resolution</string>
-    <string name="default_resolution_value" translatable="false">360p</string>
+    <string name="default_resolution_value" translatable="false">1080p60</string>
     <string name="show_higher_resolutions_key" translatable="false">show_higher_resolutions</string>
     <string name="default_popup_resolution_key" translatable="false">default_popup_resolution</string>
-    <string name="default_popup_resolution_value" translatable="false">360p</string>
+    <string name="default_popup_resolution_value" translatable="false">1080p60</string>
     <string name="best_resolution_key" translatable="false">best_resolution</string>
 
     <string-array name="resolution_list_values" translatable="false">
@@ -141,8 +141,8 @@
     <string name="show_comments_key" translatable="false">show_comments</string>
     <string name="stream_info_selected_tab_key" translatable="false">stream_info_selected_tab</string>
     <string name="show_hold_to_append_key" translatable="false">show_hold_to_append</string>
-    <string name="default_language_value">en</string>
-    <string name="default_country_value">GB</string>
+    <string name="default_language_value">uk</string>
+    <string name="default_country_value">UA</string>
     <string name="content_language_key" translatable="false">content_language</string>
     <string name="content_country_key" translatable="false">content_country</string>
     <string name="show_age_restricted_content" translatable="false">show_age_restricted_content</string>

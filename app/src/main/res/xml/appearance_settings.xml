@@ -41,11 +41,11 @@
         android:title="@string/caption_setting_title"
         android:summary="@string/caption_setting_description"/>
 
-    <PreferenceScreen
-        app:iconSpaceReserved="false"
-        android:fragment="org.schabi.newpipe.settings.tabs.ChooseTabsFragment"
-        android:summary="@string/main_page_content_summary"
-        android:key="@string/main_page_content_key"
-        android:title="@string/main_page_content"/>
+    <!--<PreferenceScreen-->
+        <!--app:iconSpaceReserved="false"-->
+        <!--android:fragment="org.schabi.newpipe.settings.tabs.ChooseTabsFragment"-->
+        <!--android:summary="@string/main_page_content_summary"-->
+        <!--android:key="@string/main_page_content_key"-->
+        <!--android:title="@string/main_page_content"/>-->
 
 </PreferenceScreen>
