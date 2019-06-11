@@ -31,6 +31,8 @@ import org.schabi.newpipe.util.ServiceHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.schabi.newpipe.extractor.ServiceList.YouTube;
+
 public class MainFragment extends BaseFragment implements TabLayout.OnTabSelectedListener {
     private ViewPager viewPager;
     private SelectedTabsPagerAdapter pagerAdapter;
@@ -51,16 +53,24 @@ public class MainFragment extends BaseFragment implements TabLayout.OnTabSelecte
         setHasOptionsMenu(true);
 
         tabsManager = TabsManager.getManager(activity);
-        tabsManager.setSavedTabsListener(() -> {
-            if (DEBUG) {
-                Log.d(TAG, "TabsManager.SavedTabsChangeListener: onTabsChanged called, isResumed = " + isResumed());
-            }
-            if (isResumed()) {
-                updateTabs();
-            } else {
-                hasTabsChanged = true;
-            }
-        });
+
+        // hardcoded tabs ^_^
+        ArrayList<Tab> tabs = new ArrayList<>();
+        tabs.add(new Tab.KioskTab(YouTube.getServiceId(), "Trending"));
+        tabs.add(new Tab.MySubsTab());
+        tabs.add(new Tab.HistoryTab());
+        tabsManager.saveTabs(tabs);
+
+//        tabsManager.setSavedTabsListener(() -> {
+//            if (DEBUG) {
+//                Log.d(TAG, "TabsManager.SavedTabsChangeListener: onTabsChanged called, isResumed = " + isResumed());
+//            }
+//            if (isResumed()) {
+//                updateTabs();
+//            } else {
+//                hasTabsChanged = true;
+//            }
+//        });
     }
 
     @Override

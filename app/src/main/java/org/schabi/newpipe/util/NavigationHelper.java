@@ -377,7 +377,7 @@ public class NavigationHelper {
 
     public static void openMyFeedFragment(FragmentManager fragmentManager, String chanelId) {
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, FeedFragment.newInstance(chanelId)) // todo: new instance with params
+                .replace(R.id.fragment_holder, FeedFragment.newInstance(chanelId))
                 .addToBackStack(null)
                 .commit();
     }

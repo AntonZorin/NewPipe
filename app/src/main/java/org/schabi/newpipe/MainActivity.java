@@ -90,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean servicesShown = false;
 
-    private static final int ITEM_ID_RECOMMEND = 0;
+//    private static final int ITEM_ID_RECOMMEND = 0;
     private static final int ITEM_ID_TRENDS    = 1;
     private static final int ITEM_ID_MY_FEED   = 2;
-    private static final int ITEM_ID_BOOKMARKS = 3;
+//    private static final int ITEM_ID_BOOKMARKS = 3;
     private static final int ITEM_ID_HISTORY   = 4;
     private static final int ITEM_ID_SETTINGS  = 5;
     private static final int ITEM_ID_LOGIN     = 6;
@@ -143,18 +143,18 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         drawerItems = findViewById(R.id.navigation);
 
-        drawerItems.getMenu()
-                .add(R.id.menu_tabs_group, ITEM_ID_RECOMMEND, ORDER, R.string.recommendations)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
+//        drawerItems.getMenu()
+//                .add(R.id.menu_tabs_group, ITEM_ID_RECOMMEND, ORDER, R.string.recommendations)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info));
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_TRENDS, ORDER, R.string.trending)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_hot));
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_MY_FEED, ORDER, R.string.feed)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.rss));
-        drawerItems.getMenu()
-                .add(R.id.menu_tabs_group, ITEM_ID_BOOKMARKS, ORDER, R.string.tab_bookmarks)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_bookmark));
+//        drawerItems.getMenu()
+//                .add(R.id.menu_tabs_group, ITEM_ID_BOOKMARKS, ORDER, R.string.tab_bookmarks)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_bookmark));
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_HISTORY, ORDER, R.string.action_history)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.history));
@@ -250,22 +250,37 @@ public class MainActivity extends AppCompatActivity {
 
     private void tabSelected(MenuItem item) throws ExtractionException {
         switch (item.getItemId()) {
-            case ITEM_ID_RECOMMEND:
-                NavigationHelper.openRecommendationsFragment(getSupportFragmentManager());
-                break;
+//            case ITEM_ID_RECOMMEND:
+//                NavigationHelper.openRecommendationsFragment(getSupportFragmentManager());
+//                break;
             case ITEM_ID_TRENDS:
-                NavigationHelper.openTrendsFragment(getSupportFragmentManager());
+//                NavigationHelper.openTrendsFragment(getSupportFragmentManager());
+                openKiosk(item);
                 break;
             case ITEM_ID_MY_FEED:
                 NavigationHelper.openSubscriptionsFragment(getSupportFragmentManager());
                 break;
-            case ITEM_ID_BOOKMARKS:
-                NavigationHelper.openBookmarksFragment(getSupportFragmentManager());
-                break;
+//            case ITEM_ID_BOOKMARKS:
+//                NavigationHelper.openBookmarksFragment(getSupportFragmentManager());
+//                break;
             case ITEM_ID_HISTORY:
                 NavigationHelper.openStatisticFragment(getSupportFragmentManager());
                 break;
         }
+    }
+
+    private void openKiosk(MenuItem item) throws ExtractionException {
+        int currentServiceId = ServiceHelper.getSelectedServiceId(this);
+        StreamingService service = NewPipe.getService(currentServiceId);
+        String serviceName = "";
+        int kioskId = 0;
+        for (final String ks : service.getKioskList().getAvailableKiosks()) {
+            if (kioskId == item.getItemId()) {
+                serviceName = ks;
+            }
+            kioskId++;
+        }
+        NavigationHelper.openKioskFragment(getSupportFragmentManager(), currentServiceId, serviceName);
     }
 
     private void optionsAboutSelected(MenuItem item) {
@@ -354,9 +369,9 @@ public class MainActivity extends AppCompatActivity {
             kioskId++;
         }
 
-        drawerItems.getMenu()
-                .add(R.id.menu_tabs_group, ITEM_ID_BOOKMARKS, ORDER, R.string.tab_bookmarks)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_bookmark));
+//        drawerItems.getMenu()
+//                .add(R.id.menu_tabs_group, ITEM_ID_BOOKMARKS, ORDER, R.string.tab_bookmarks)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.ic_bookmark));
         drawerItems.getMenu()
                 .add(R.id.menu_tabs_group, ITEM_ID_HISTORY, ORDER, R.string.action_history)
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.history));

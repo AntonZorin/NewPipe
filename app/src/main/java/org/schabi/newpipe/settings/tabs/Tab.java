@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonSink;
+import com.wezom.parts.subs.SubscriptionsFragment;
 
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
@@ -128,7 +129,8 @@ public abstract class Tab {
         BOOKMARKS(new BookmarksTab()),
         HISTORY(new HistoryTab()),
         KIOSK(new KioskTab()),
-        CHANNEL(new ChannelTab());
+        CHANNEL(new ChannelTab()),
+        MY_SUBS(new MySubsTab());
 
         private Tab tab;
 
@@ -411,6 +413,29 @@ public abstract class Tab {
 
         public String getChannelName() {
             return channelName;
+        }
+    }
+
+    public static class MySubsTab extends Tab {
+
+        @Override
+        public int getTabId() {
+            return 7;
+        }
+
+        @Override
+        public String getTabName(Context context) {
+            return context.getString(R.string.subscribe_button_title);
+        }
+
+        @Override
+        public int getTabIconRes(Context context) {
+            return ThemeHelper.resolveResourceIdFromAttr(context, R.attr.rss);
+        }
+
+        @Override
+        public Fragment getFragment() {
+            return new SubscriptionsFragment();
         }
     }
 }

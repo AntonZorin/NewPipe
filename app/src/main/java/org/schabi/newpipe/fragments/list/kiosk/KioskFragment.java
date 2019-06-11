@@ -1,7 +1,6 @@
 package org.schabi.newpipe.fragments.list.kiosk;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -59,8 +58,7 @@ public class KioskFragment extends BaseListInfoFragment<KioskInfo> {
     // Views
     //////////////////////////////////////////////////////////////////////////*/
 
-    public static KioskFragment getInstance(int serviceId)
-            throws ExtractionException {
+    public static KioskFragment getInstance(int serviceId) throws ExtractionException {
         return getInstance(serviceId, NewPipe.getService(serviceId)
                 .getKioskList()
                 .getDefaultKioskId());
@@ -70,11 +68,15 @@ public class KioskFragment extends BaseListInfoFragment<KioskInfo> {
             throws ExtractionException {
         KioskFragment instance = new KioskFragment();
         StreamingService service = NewPipe.getService(serviceId);
-        ListLinkHandlerFactory kioskLinkHandlerFactory = service.getKioskList()
-                .getListLinkHandlerFactoryByType(kioskId);
-        instance.setInitialData(serviceId,
-                kioskLinkHandlerFactory.fromId(kioskId).getUrl(), kioskId);
-        instance.kioskId = kioskId;
+        try {
+            ListLinkHandlerFactory kioskLinkHandlerFactory = service.getKioskList()
+                    .getListLinkHandlerFactoryByType(kioskId);
+            instance.setInitialData(serviceId,
+                    kioskLinkHandlerFactory.fromId(kioskId).getUrl(), kioskId);
+            instance.kioskId = kioskId;
+        } catch (NullPointerException ex) {
+            return getInstance(serviceId);
+        }
         return instance;
     }
 
