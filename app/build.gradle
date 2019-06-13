@@ -4,6 +4,13 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def formattedDate = new Date().format('dd-MMM_HH-mm')
+            outputFileName = "kivitube_${formattedDate}.apk"
+        }
+    }
+
     defaultConfig {
         applicationId "org.schabi.newpipe"
         minSdkVersion 19

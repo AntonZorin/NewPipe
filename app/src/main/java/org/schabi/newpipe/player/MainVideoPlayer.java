@@ -43,6 +43,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -208,6 +209,10 @@ public final class MainVideoPlayer extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        if (playerImpl.isControlsVisible()) {
+            playerImpl.hideControls(150, 0);
+            return;
+        }
         super.onBackPressed();
         isBackPressed = true;
     }
@@ -380,6 +385,7 @@ public final class MainVideoPlayer extends AppCompatActivity
     private class VideoPlayerImpl extends VideoPlayer {
         private final float MAX_GESTURE_LENGTH = 0.75f;
 
+        // region views
         private TextView titleTextView;
         private TextView channelTextView;
         private RelativeLayout volumeRelativeLayout;
@@ -402,8 +408,6 @@ public final class MainVideoPlayer extends AppCompatActivity
         private RecyclerView itemsList;
         private ItemTouchHelper itemTouchHelper;
 
-        private boolean queueVisible;
-
         private ImageButton moreOptionsButton;
         private ImageButton shareButton;
         private ImageButton toggleOrientationButton;
@@ -412,7 +416,9 @@ public final class MainVideoPlayer extends AppCompatActivity
 
         private RelativeLayout windowRootLayout;
         private View secondaryControls;
+        // endregion
 
+        private boolean queueVisible;
         private int maxGestureLength;
 
         VideoPlayerImpl(final Context context) {
@@ -997,12 +1003,15 @@ public final class MainVideoPlayer extends AppCompatActivity
         }
     }
 
-    private class PlayerGestureListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+    private class PlayerGestureListener
+            extends GestureDetector.SimpleOnGestureListener
+            implements View.OnTouchListener {
+
         private boolean isMoving;
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if (DEBUG) Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.getRawX() + ", " + e.getRawY() + ", xy = " + e.getX() + ", " + e.getY());
+            log("double tap");
 
             if (e.getX() > playerImpl.getRootView().getWidth() * 2 / 3) {
                 playerImpl.onFastForward();
@@ -1017,13 +1026,15 @@ public final class MainVideoPlayer extends AppCompatActivity
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [" + e + "]");
+            log("single tap");
+
             if (playerImpl.getCurrentState() == BasePlayer.STATE_BLOCKED) return true;
 
             if (playerImpl.isControlsVisible()) {
                 playerImpl.hideControls(150, 0);
             } else {
-                playerImpl.showControlsThenHide();
+//                playerImpl.showControlsThenHide();
+                playerImpl.showControls(150);
                 showSystemUi();
             }
             return true;
@@ -1031,8 +1042,7 @@ public final class MainVideoPlayer extends AppCompatActivity
 
         @Override
         public boolean onDown(MotionEvent e) {
-            if (DEBUG) Log.d(TAG, "onDown() called with: e = [" + e + "]");
-
+            log("down");
             return super.onDown(e);
         }
 
@@ -1137,7 +1147,7 @@ public final class MainVideoPlayer extends AppCompatActivity
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             //noinspection PointlessBooleanExpression
-            if (DEBUG && false) Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
+//            log("touch");
             gestureDetector.onTouchEvent(event);
             if (event.getAction() == MotionEvent.ACTION_UP && isMoving) {
                 isMoving = false;
@@ -1146,5 +1156,38 @@ public final class MainVideoPlayer extends AppCompatActivity
             return true;
         }
 
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        log("key event: code="+event.getKeyCode()+"; action="+event.getAction());
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN)
+            return super.dispatchKeyEvent(event);
+
+        boolean isBigButtonPressed = event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER
+                || event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+
+        // show controls
+        if (isBigButtonPressed && !playerImpl.isControlsVisible()) {
+            playerImpl.showControls(150);
+            return true;
+        }
+
+        boolean isRightPressed = event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT;
+        boolean isLeftPressed = event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT;
+        boolean isFocusOnProgressLine = playerImpl.getPlaybackSeekBar().isFocused();
+
+        if (isFocusOnProgressLine && (isRightPressed || isLeftPressed)) {
+            playerImpl.seekTo(playerImpl.getPlaybackSeekBar().getProgress());
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void log(String text) {
+        if (!DEBUG) return;
+        Log.d("player_debug", text);
+//        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }
